@@ -1,0 +1,194 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+using System.Configuration;
+using System.Data.SqlClient;
+using WebApplication1.Models;
+using System.Net;
+using System.Net.Mail;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
+using System.IO;
+using iTextSharp.text.html.simpleparser;
+using Rotativa;
+
+namespace WebApplication1.Controllers
+
+{
+    public class HomeController : Controller
+    {
+        public ActionResult Index()
+        {
+            
+            ViewBag.video_id = 1;
+           
+            return View();
+        }
+
+        [HttpPost]
+        public JsonResult Index(int video_id)
+        {
+            int id = 0;
+            string ip = System.Web.HttpContext.Current.Request.ServerVariables["HTTP_X_FORWARDED_FOR"];
+            if (string.IsNullOrEmpty(ip))
+            {
+                ip = System.Web.HttpContext.Current.Request.ServerVariables["REMOTE_ADDR"];
+            }
+            string constr = ConfigurationManager.ConnectionStrings["ConnectionDatabase"].ConnectionString;
+            using (SqlConnection con = new SqlConnection(constr))
+            {
+                string query = "Select * from Video_stream where user_id =@User_id and video_id =@Videoid and ip_address=@Ip and streaming_date=@Streaming_date and complete_status=0";
+
+                using (SqlCommand cmd = new SqlCommand(query))
+                {
+                    cmd.Connection = con;
+                    con.Open();
+                    cmd.Parameters.AddWithValue("@User_id", 1);
+                    cmd.Parameters.AddWithValue("@Videoid", video_id);
+                    cmd.Parameters.AddWithValue("@Ip", ip);
+                    cmd.Parameters.AddWithValue("@Streaming_date", DateTime.Now.Date);
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    if (!reader.HasRows)
+                    {
+                    
+                            con.Close();
+                            query = "insert into Video_stream(user_id,video_id,ip_address,video_start_time,streaming_date,created_at,video_updated_at) values (@user_id,@video_id,@ip_address,@video_start_time,@streaming_date,@created_at,@updated_at)";
+                            query += " SELECT SCOPE_IDENTITY()";
+                            SqlCommand cmd1 = new SqlCommand(query, con);
+
+                            cmd1.Parameters.AddWithValue("@user_id", 1);
+                            cmd1.Parameters.AddWithValue("@video_id", 1);
+                            cmd1.Parameters.AddWithValue("@ip_address", ip);
+                            cmd1.Parameters.AddWithValue("@video_start_time", DateTime.Now);
+                            cmd1.Parameters.AddWithValue("@streaming_date", DateTime.Now.Date);
+                            cmd1.Parameters.AddWithValue("@created_at", DateTime.Now);
+                            cmd1.Parameters.AddWithValue("@updated_at", DateTime.Now);
+                            con.Open();
+                            id = Convert.ToInt32(cmd1.ExecuteScalar());
+
+                    }
+                    else
+                    {
+                        if (reader.Read())
+                        {
+                            
+                            id = Convert.ToInt32(reader["id"]);
+                            con.Close();
+                            query = "update Video_stream set video_updated_at=@updated_at , streaming_sec=(isnull(streaming_sec,0)+60)  where id =@Id";
+
+                            using (SqlCommand cmd1 = new SqlCommand(query))
+                            {
+                                cmd1.Connection = con;
+                                con.Open();
+                                cmd1.Parameters.AddWithValue("@Id", id);
+                                
+                                cmd1.Parameters.AddWithValue("@updated_at", DateTime.Now);
+                                cmd1.ExecuteNonQuery();
+                                con.Close();
+
+                            }
+                        }
+                    }
+
+
+                }
+            }
+            return Json(new{id});
+        }
+
+
+        [HttpPost]
+        public ActionResult End_Video(int id)
+        {
+            string constr = ConfigurationManager.ConnectionStrings["ConnectionDatabase"].ConnectionString;
+            using (SqlConnection con = new SqlConnection(constr))
+            {
+                string query = "update Video_stream set video_updated_at=@updated_at , video_end_time=@video_end_time,complete_status=@status  where id =@Id";
+
+                using (SqlCommand cmd = new SqlCommand(query))
+                {
+                    cmd.Connection = con;
+                    con.Open();
+                    cmd.Parameters.AddWithValue("@updated_at", DateTime.Now);
+                    
+                    cmd.Parameters.AddWithValue("@video_end_time", DateTime.Now);
+                    cmd.Parameters.AddWithValue("@Id", id);
+                    cmd.Parameters.AddWithValue("@status",1);
+                    cmd.ExecuteNonQuery();
+                    con.Close();
+
+
+                }
+            }
+            return null;
+        }
+
+
+            public ActionResult About()
+        {
+            string filename = ".Net mail Test";
+            MailMessage mail = new MailMessage();
+            SmtpClient SmtpServer = new SmtpClient("mail.apttechsol.com");
+            string html = "";
+            mail.From = new MailAddress("madhu@apttechsol.com");
+            mail.To.Add("madhukar8500@gmail.com");
+            mail.Subject = filename;
+            mail.IsBodyHtml = true;
+            mail.Body = "<iframe height='390' src = 'http://www.youtube.com/embed/Sf5T5KjMpJU?wmode=transparent' title = 'YouTube video player' ></ iframe > ";
+            //Attachment attachment = new Attachment(filename);
+            //mail.Attachments.Add(attachment);
+
+            SmtpServer.Port = 587;
+            SmtpServer.Credentials = new System.Net.NetworkCredential("madhu@apttechsol.com", "Madhu@8500");
+            SmtpServer.EnableSsl = false;
+
+            SmtpServer.Send(mail);
+
+            ViewBag.Message = "Your application description page.";
+
+            return View();
+        }
+        public ActionResult Invoice()
+        {
+            List<Models.VideoDuration> videoslist = new List<VideoDuration>();
+            string constr = ConfigurationManager.ConnectionStrings["ConnectionDatabase"].ConnectionString;
+            using (SqlConnection con = new SqlConnection(constr))
+            {
+                string query = "select video_id , COUNT(video_id) AS count,cv.Title  from Video_stream v inner join tbl_ChaptersVideos cv on cv.cvID = v.video_id where user_id = @User_id group by v.video_id,Title; ";
+
+                using (SqlCommand cmd = new SqlCommand(query))
+                {
+                    cmd.Connection = con;
+                    con.Open();
+                    cmd.Parameters.AddWithValue("@User_id", 1);
+                    
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        VideoDuration duration = new VideoDuration();
+                        duration.video_id = Convert.ToInt32(reader["video_id"]);
+                        duration.count = Convert.ToInt32(reader["count"]);
+                        duration.title = Convert.ToString(reader["Title"]);
+                        duration.amount = Convert.ToInt32(reader["count"])*50;
+                        videoslist.Add(duration);
+                    }
+                }
+            }
+           
+            return View(videoslist);
+        }
+
+        public ActionResult Contact()
+        {
+            return View();
+        }
+            public ActionResult pdf()
+        {
+            var report = new ActionAsPdf("Invoice");
+            return report;
+        }
+    }
+}

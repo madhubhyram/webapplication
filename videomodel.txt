@@ -1,0 +1,25 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+
+namespace WebApplication1.Models
+{
+    public class VideoDuration
+    {
+        public int ip_address { get;set;}
+        public int user_id { get;set;}
+        public DateTime video_start_time { get;set;}
+        public int streaming_sec { get;set;}
+        public DateTime video_end_time { get;set;}
+        public int video_id { get;set;}
+        public DateTime streaming_date { get;set;}
+        public DateTime video_updated_at { get;set;}
+        public DateTime created_at { get;set;}
+        public int complete_status { get;set;}
+        public int count { get;set;}
+        public string title { get;set;}
+        public int amount { get;set;}
+    }
+    
+}

@@ -1,0 +1,220 @@
+
+@{
+    ViewBag.Title = "Invoice";
+    int total = 0;
+}
+
+
+
+
+    <!-- Fontawesome icons -->
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.10.2/css/all.css">
+
+    <!-- Animations -->
+    <link href="~/css/Animations.css" rel="stylesheet" />
+   
+
+    <!-- Font family -->
+
+    <link href="https://fonts.googleapis.com/css?family=Rubik" rel="stylesheet">
+
+
+    <!--Datatables CSS-->
+    <link href="~/css/datatables.css" rel="stylesheet" />
+   
+
+
+    <!--Extra CSS-->
+    <link href="~/css/extracss.css" rel="stylesheet" />
+    
+
+    <div class="container-fluid bg-light py-4 px-0">
+        <div class="container-fluid px-md-5 px-lg-5">
+            <div class="row">
+                <div class="col-12 col-md-3 my-auto">
+                    <div>
+                        <img src="~/images/images/logo.png" class="img-fluid mx-auto d-block"  alt="">
+                    </div>
+                </div>
+                <div class="col-12 col-md-6">
+
+                </div>
+                <div class="col-12 col-md-2 my-auto">
+                    <div class="row">
+                        <div class="col-12 col-md-12 py-2 px-2">
+                            <h5 class="font-weight-bold mb-0 text-center p-2" style="border: 1px solid #000;">INVOICE</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid px-md-5 px-lg-5">
+            <div class="row">
+                <div class="col-12 col-md-6 my-auto pt-3">
+                    <h5 class="font-weight-bold">BILLING & Billing</h5>
+                    <div class="row">
+                       
+                        <div class="col-12 col-md-6 mx-auto py-2">
+
+                            <div class="font-weight-bold">Madhukar</div>
+                            <div class="font-weight-bold">madhukar8500@gmail.com</div>
+                            <div class="font-weight-bold">8500817831</div>
+                            <div class="font-weight-bold">KPHB</div>
+                            <div class="font-weight-bold">Telangana</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 py-0">
+
+                </div>
+                <div class="col-12 col-md-3 my-auto pt-3">
+                    
+                    <div class="font-weight-bold py-2">
+                        <div> TelemedEdu, USA, Inc</div>
+                        <div> 223 Paragon Avenue. Troy, MI 48098, USA</div>
+                        <div>P.O. Box 1503 Troy, MI 48099</div>
+                        <div>
+                            586-480-0318</div>
+                        <div>contact@TelemedEdu.org</div>
+                        <div>FAX: 248-524-2243</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid px-md-5 px-lg-5">
+            <div class="row">
+                
+                
+                <div class="col-12 col-md-3 my-auto pt-3">
+                    <div class="font-weight-bold">
+                        <span>Invoice Number: </span>
+                        <span>Inv0001</span>
+                    </div>
+                    <div class="font-weight-bold">
+                        <span>Invoice Date: </span>
+                        <span>@DateTime.Now</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid pb-4 px-md-5 px-lg-5">
+        <div class="row">
+            <div class="col-sm-12">
+                <h4 class="py-4 mb-0">Videos List</h4>
+                <div class="table-responsive">
+                    <table class="datatable table table-center mb-0">
+                        <thead>
+                            <tr>
+                                <th>Video Name</th>
+                                
+                                <th>Striming Times</th>
+                                <th>Price</th>
+                                <th>Subtotal</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+                            @foreach (var item in Model)
+                            {
+
+                                total = @item.amount + total;
+
+
+                                <tr>
+                                    <td>
+
+                                        <div>@item.title</div>
+                                    </td>
+
+                                    <td>@item.count</td>
+                                    <td>$50</td>
+                                    <td>$@item.amount</td>
+                                </tr>
+                            }
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-md-end">
+            <div class="col-12 col-md-5 py-2 px25">
+                <h6 class="mb-0 font-weight-bold">Amount in Words:</h6>
+                <div id="words">Nine Thousand Ninty Nine Rupees</div>
+            </div>
+            <div class="col-md-6 px30">
+                <div class="row py-3 border-bottom ">
+                    <div class="col-6 col-md-6">
+                        <div>Sub Total</div>
+                    </div>
+                    <div class="col-6 col-md-6">
+                        <div class="float-right font-weight-bold">$@total</div>
+                    </div>
+                </div>
+                <div class="row border-bottom">
+                    
+                    <div class="col-6 col-md-6 py-2">
+                        <div>Total Amount</div>
+                    </div>
+                    <div class="col-6 col-md-6 py-2">
+                        <div class="float-right font-weight-bold">$@total</div>
+                    </div>
+                </div>
+               
+            </div>
+        </div>
+    </div>
+    <script src="~/Scripts/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript">
+        // American Numbering System
+        var th = ['', 'thousand', 'million', 'billion', 'trillion'];
+
+        var dg = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
+
+        var tn = ['ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
+
+        var tw = ['twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+        $('#words').text(toWords(@total));
+        function toWords(s) {
+            s = s.toString();
+            s = s.replace(/[\, ]/g, '');
+            if (s != parseFloat(s)) return 'not a number';
+            var x = s.indexOf('.');
+            if (x == -1) x = s.length;
+            if (x > 15) return 'too big';
+            var n = s.split('');
+            var str = '';
+            var sk = 0;
+            for (var i = 0; i < x; i++) {
+                if ((x - i) % 3 == 2) {
+                    if (n[i] == '1') {
+                        str += tn[Number(n[i + 1])] + ' ';
+                        i++;
+                        sk = 1;
+                    } else if (n[i] != 0) {
+                        str += tw[n[i] - 2] + ' ';
+                        sk = 1;
+                    }
+                } else if (n[i] != 0) {
+                    str += dg[n[i]] + ' ';
+                    if ((x - i) % 3 == 0) str += 'hundred ';
+                    sk = 1;
+                }
+                if ((x - i) % 3 == 1) {
+                    if (sk) str += th[(x - i - 1) / 3] + ' ';
+                    sk = 0;
+                }
+            }
+            if (x != s.length) {
+                var y = s.length;
+                str += 'point ';
+                for (var i = x + 1; i < y; i++) str += dg[n[i]] + ' ';
+            }
+            return str.replace(/\s+/g, ' ');
+
+        }
+    </script>
